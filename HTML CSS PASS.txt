@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Evaluator</title>
+    <style>
+        /* Password protection style */
+        #passwordOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #passwordContainer {
+            background: linear-gradient(135deg, #121212, #1f1f1f);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+            text-align: center;
+            width: 300px;
+            color: #ffffff;
+            font-family: 'Arial', sans-serif;
+        }
+
+        #passwordContainer h2 {
+            margin-bottom: 20px;
+            color: #00c8ff;
+        }
+
+        input[type="password"] {
+            padding: 12px;
+            width: 80%;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 8px;
+            background: #333333;
+            color: #ffffff;
+            box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.5);
+        }
+
+        input[type="password"]::placeholder {
+            color: #aaaaaa;
+        }
+
+        button {
+            padding: 12px 20px;
+            background: #00c8ff;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #0086cc;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            background-color: #005f99;
+            transform: translateY(0);
+        }
+
+        .message {
+            color: #ff4d4d;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        /* Your existing styles */
+        @import url('https://fonts.googleapis.com/css2?family=Copperplate+Gothic&display=swap');
+        body {
+            font-family: 'Copperplate Gothic', sans-serif;
+            background: linear-gradient(135deg, #1e1e1e, #2c3e50);
+            color: #ffffff;
+            margin: 20px;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #3399ff;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        .initial-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: calc(100vh - 80px); /* Centered content */
+        }
+
+        .initial-page ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .initial-page ul li {
+            font-size: 1.2em;
+            margin: 10px 0;
+            text-align: center;
+            color: #66ccff;
+        }
+
+        .initial-page ul li:hover {
+            color: #00c8ff;
+            cursor: pointer;
+        }
+
+        .final-score-box {
+            text-align: center;
+            background: #333333;
+            color: #ffffff;
+            padding: 15px 20px;
+            border-radius: 5px;
+            border: 1px solid #444444;
+            margin-top: 30px; /* Position higher than the bottom */
+            cursor: pointer;
+            width: 200px;
+        }
+
+        .final-score-box:hover {
+            background: #00c8ff;
+            color: #121212;
+        }
+
+        .factor, .result-page {
+            background: rgba(30, 30, 30, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        input, button {
+            background: #333333;
+            color: #ffffff;
+            border: 1px solid #444444;
+            border-radius: 3px;
+            padding: 5px 10px;
+        }
+
+        input:focus, button:hover {
+            background: #444444;
+            border-color: #00c8ff;
+            outline: none;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #00c8ff;
+            color: #121212;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .back-button {
+            margin-top: 20px;
+            display: inline-block;
+            background-color: #444444;
+            color: #ffffff;
+            border: 1px solid #555555;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .back-button:hover {
+            background-color: #00c8ff;
+            color: #121212;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Password Protection Overlay -->
+    <div id="passwordOverlay">
+        <div id="passwordContainer">
+            <h2>Enter Password</h2>
+            <input type="password" id="passwordInput" placeholder="Password" />
+            <button onclick="checkPassword()">Submit</button>
+            <p class="message" id="message"></p>
+        </div>
+    </div>
+
+    <!-- Your original content starts here -->
+    <header>
+        <h1>Project Evaluator</h1>
+    </header>
+    <div class="initial-page">
+        <ul>
+            <li onclick="showSection('financial')">Financial Viability</li>
+            <li onclick="showSection('location')">Location</li>
+            <li onclick="showSection('risk')">Risk Factors</li>
+            <li onclick="showSection('quality')">Quality and Design</li>
+            <li onclick="showSection('compatibility')">Compatibility</li>
+        </ul>
+        <div class="final-score-box" onclick="calculateFinalScore()">FINAL SCORE</div>
+    </div>
+
+    <!-- Financial Viability Section -->
+    <div id="financial" class="factor hidden">
+        <h2>Financial Viability</h2>
+        <label>Weight: <input type="number" id="financialWeight" value="10" min="1"></label><br>
+        <label>Price Compared to Market (out of 7, 5 = market price): 
+            <input type="number" id="marketPrice" max="7" min="1" oninput="validateInput(this)">
+        </label><br>
+        <label>ROI Potential (/10): <input type="number" id="roiPotential" max="10" min="0" oninput="validateInput(this)"></label><br>
+        <label>Capital Appreciation Potential (/10): <input type="number" id="capitalAppreciation" max="10" min="0" oninput="validateInput(this)"></label><br>
+        <button onclick="calculateFinancialScore()">Calculate Score</button>
+        <p id="financialScore"></p>
+        <a class="back-button" onclick="goBack()">Back</a>
+    </div>
+
+    <!-- Location Section -->
+    <div id="location" class="factor hidden">
+        <h2>Location</h2>
+        <label>Weight: <input type="number" id="locationWeight" value="8" min="1"></label><br>
+        <label>Freehold/Leasehold (Free = 5 / Lease = 1): <input type="number" id="freeholdLeasehold" max="5" min="1" oninput="validateInput(this)"></label><br>
+        <label>Proximity to Infrastructure (/10): <input type="number" id="proximity" max="10" min="0" oninput="validateInput(this)"></label><br>
+        <label>Neighborhood Demographics (/10): <input type="number" id="demographics" max="10" min="0" oninput="validateInput(this)"></label><br>
+        <label>Accessibility (/10): <input type="number" id="accessibility" max="10" min="0" oninput="validateInput(this)"></label><br>
+        <label>Views (/10): <input type="number" id="views" max="10" min="0" oninput="validateInput(this)"></label><br>
+        <label>Nearby Construction by Delivery Time (/10): <input type="number" id="construction" max="10" min="0" oninput="validateInput(this)"></label><br>
+        <button onclick="calculateLocationScore()">Calculate Score</button>
+        <p id="locationResult"></p>
+        <a class="back-button" onclick="goBack()">Back</a>
+    </div>
+
+    <!-- Risk Factors Section -->
+    <div id="risk" class="factor hidden">
+        <h2>Risk Factors</h2>
+        <label>Weight: <input type="number" id="riskWeight" value="6" min="1"></label><br>
+        <label>Market Stability (/10): <input type="number" id="marketStability" max="10" min="0" oninput="validateInput(this)"></label><br>
+        <label>Developer Reputation (/10): <input type="number" id="developerReputation" max="10" min="0" oninput="validateInput(this)"></label><br>
+        <label>Scarcity (/10): <input type="number" id="scarcity" max="10" min="0" oninput="validateInput(this)"></label><br>
+        <button onclick="calculateRiskScore()">Calculate Score</button>
+        <p id="riskResult"></p>
+        <a class="back-button" onclick="goBack()">Back</a>
+    </div>
+
+    <!-- Quality and Design Section -->
+    <div id="quality" class="factor hidden">
+        <h2>Quality and Design</h2>
+        <label>Weight: <input type="number" id="qualityWeight" value="6" min="1"></label><br>
+        <label>Quality (/10): <input type="number" id="qualityScore" max="10" min="0" oninput="validateInput(this)"></label><br>
+        <label>Design (/10): <input type="number" id="designScore" max="10" min="0" oninput="validateInput(this)"></label><br>
+        <button onclick="calculateQualityScore()">Calculate Score</button>
+        <p id="qualityResult"></p>
+        <a class="back-button" onclick="goBack()">Back</a>
+    </div>
+
+    <!-- Compatibility Section -->
+    <div id="compatibility" class="factor hidden">
+        <h2>Compatibility</h2>
+        <label>Weight: <input type="number" id="compatibilityWeight" value="6" min="1"></label><br>
+        <label>Budget (/10): <input type="number" id="budget" max="10" min="0" oninput="validateInput(this)"></label><br>
+        <label>Payment Plan (/10): <input type="number" id="paymentPlan" max="10" min="0" oninput="validateInput(this)"></label><br>
+        <label>Sizes (/10): <input type="number" id="sizes" max="10" min="0" oninput="validateInput(this)"></label><br>
+        <label>Handover Date (/10): <input type="number" id="handover" max="10" min="0" oninput="validateInput(this)"></label><br>
+        <button onclick="calculateCompatibilityScore()">Calculate Score</button>
+        <p id="compatibilityResult"></p>
+        <a class="back-button" onclick="goBack()">Back</a>
+    </div>
+
+    <!-- Final Score Page -->
+    <div id="finalScorePage" class="result-page hidden">
+        <h2>Final Evaluation Score</h2>
+        <p id="finalScoreResult"></p>
+        <a class="back-button" onclick="goBack()">Back</a>
+    </div>
+
+    <script>
+        let financialScore = 0;
+        let locationScore = 0;
+        let riskScore = 0;
+        let qualityScore = 0;
+        let compatibilityScore = 0;
+
+        function showSection(section) {
+            document.querySelector('.initial-page').classList.add('hidden');
+            const sections = ['financial', 'location', 'risk', 'quality', 'compatibility', 'finalScorePage'];
+            sections.forEach(s => document.getElementById(s)?.classList.add('hidden'));
+            document.getElementById(section)?.classList.remove('hidden');
+        }
+
+        function goBack() {
+            const sections = ['financial', 'location', 'risk', 'quality', 'compatibility', 'finalScorePage'];
+            sections.forEach(s => document.getElementById(s)?.classList.add('hidden'));
+            document.querySelector('.initial-page').classList.remove('hidden');
+        }
+
+        function validateInput(input) {
+            const max = parseInt(input.max);
+            const min = parseInt(input.min);
+            const value = parseInt(input.value);
+
+            if (value > max) {
+                input.value = max;
+            } else if (value < min) {
+                input.value = min;
+            }
+        }
+
+        function calculateFinancialScore() {
+            const weight = parseFloat(document.getElementById('financialWeight').value);
+            const marketPrice = parseFloat(document.getElementById('marketPrice').value) || 0;
+            const roiPotential = parseFloat(document.getElementById('roiPotential').value) || 0;
+            const capitalAppreciation = parseFloat(document.getElementById('capitalAppreciation').value) || 0;
+
+            financialScore = ((marketPrice + roiPotential + capitalAppreciation) * weight) / (weight * 27) * 100;
+            document.getElementById('financialScore').innerText = `Financial Score: ${financialScore.toFixed(2)}%`;
+        }
+
+        function calculateLocationScore() {
+            const weight = parseFloat(document.getElementById('locationWeight').value);
+            const freeholdLeasehold = parseFloat(document.getElementById('freeholdLeasehold').value) || 0;
+            const proximity = parseFloat(document.getElementById('proximity').value) || 0;
+            const demographics = parseFloat(document.getElementById('demographics').value) || 0;
+            const accessibility = parseFloat(document.getElementById('accessibility').value) || 0;
+            const views = parseFloat(document.getElementById('views').value) || 0;
+            const construction = parseFloat(document.getElementById('construction').value) || 0;
+
+            locationScore = ((freeholdLeasehold + proximity + demographics + accessibility + views + construction) * weight) / (weight * 55) * 100;
+            document.getElementById('locationResult').innerText = `Location Score: ${locationScore.toFixed(2)}%`;
+        }
+
+        function calculateRiskScore() {
+            const weight = parseFloat(document.getElementById('riskWeight').value);
+            const marketStability = parseFloat(document.getElementById('marketStability').value) || 0;
+            const developerReputation = parseFloat(document.getElementById('developerReputation').value) || 0;
+            const scarcity = parseFloat(document.getElementById('scarcity').value) || 0;
+
+            riskScore = ((marketStability + developerReputation + scarcity) * weight) / (weight * 30) * 100;
+            document.getElementById('riskResult').innerText = `Risk Score: ${riskScore.toFixed(2)}%`;
+        }
+
+        function calculateQualityScore() {
+            const weight = parseFloat(document.getElementById('qualityWeight').value);
+            const quality = parseFloat(document.getElementById('qualityScore').value) || 0;
+            const design = parseFloat(document.getElementById('designScore').value) || 0;
+
+            qualityScore = ((quality + design) * weight) / (weight * 20) * 100;
+            document.getElementById('qualityResult').innerText = `Quality Score: ${qualityScore.toFixed(2)}%`;
+        }
+
+        function calculateCompatibilityScore() {
+            const weight = parseFloat(document.getElementById('compatibilityWeight').value);
+            const budget = parseFloat(document.getElementById('budget').value) || 0;
+            const paymentPlan = parseFloat(document.getElementById('paymentPlan').value) || 0;
+            const sizes = parseFloat(document.getElementById('sizes').value) || 0;
+            const handover = parseFloat(document.getElementById('handover').value) || 0;
+
+            compatibilityScore = ((budget + paymentPlan + sizes + handover) * weight) / (weight * 40) * 100;
+            document.getElementById('compatibilityResult').innerText = `Compatibility Score: ${compatibilityScore.toFixed(2)}%`;
+        }
+
+        function calculateFinalScore() {
+            const totalScore = financialScore + locationScore + riskScore + qualityScore + compatibilityScore;
+            const finalPercentage = totalScore / 5; // Assuming equal weights for all factors
+            document.getElementById('finalScoreResult').innerText = `Final Score: ${finalPercentage.toFixed(2)}%`;
+            showSection('finalScorePage');
+        }
+
+        // Password check and reveal main content
+        function checkPassword() {
+            const passwordInput = document.getElementById('passwordInput').value;
+            const message = document.getElementById('message');
+
+            if (passwordInput === "Shoryuken0") {
+                document.getElementById('passwordOverlay').style.display = 'none'; // Hide password prompt
+            } else {
+                message.textContent = "Incorrect password. Please try again.";
+            }
+        }
+    </script>
+
+</body>
+</html>
